@@ -154,6 +154,7 @@ public class OIDCLoginProtocolService {
      */
     @Path("auth")
     public Object auth() {
+        logger.info("auth");
         AuthorizationEndpoint endpoint = new AuthorizationEndpoint(realm, event);
         ResteasyProviderFactory.getInstance().injectProperties(endpoint);
         return endpoint;
@@ -184,6 +185,7 @@ public class OIDCLoginProtocolService {
      */
     @Path("token")
     public Object token() {
+        logger.info("token");
         TokenEndpoint endpoint = new TokenEndpoint(tokenManager, realm, event);
         ResteasyProviderFactory.getInstance().injectProperties(endpoint);
         return endpoint;
@@ -234,12 +236,15 @@ public class OIDCLoginProtocolService {
         JSONWebKeySet keySet = new JSONWebKeySet();
         keySet.setKeys(jwks);
 
+        logger.info("HEY!!!!!!!!!!!@ you got your certs from here!!!!");
+
         Response.ResponseBuilder responseBuilder = Response.ok(keySet).cacheControl(CacheControlUtil.getDefaultCacheControl());
         return Cors.add(request, responseBuilder).allowedOrigins("*").auth().build();
     }
 
     @Path("userinfo")
     public Object issueUserInfo() {
+        logger.info("SUUUPPPP!!!!!!!!!!!! issueUserInfo");
         UserInfoEndpoint endpoint = new UserInfoEndpoint(tokenManager, realm);
         ResteasyProviderFactory.getInstance().injectProperties(endpoint);
         return endpoint;
@@ -264,6 +269,8 @@ public class OIDCLoginProtocolService {
     @Path("oauth/oob")
     @GET
     public Response installedAppUrnCallback(final @QueryParam("code") String code, final @QueryParam("error") String error, final @QueryParam("error_description") String errorDescription) {
+        logger.info("oauth/oob");
+
         LoginFormsProvider forms = session.getProvider(LoginFormsProvider.class);
         if (code != null) {
             return forms.setClientSessionCode(code).createCode();
@@ -282,6 +289,8 @@ public class OIDCLoginProtocolService {
     @GET
     @Path("delegated")
     public Response kcinitBrowserLoginComplete(@QueryParam("error") boolean error) {
+        logger.info("delegated");
+
         AuthenticationManager.expireIdentityCookie(realm, session.getContext().getUri(), clientConnection);
         AuthenticationManager.expireRememberMeCookie(realm, session.getContext().getUri(), clientConnection);
         if (error) {

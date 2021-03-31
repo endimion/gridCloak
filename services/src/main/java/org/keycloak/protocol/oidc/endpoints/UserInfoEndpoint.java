@@ -16,6 +16,7 @@
  */
 package org.keycloak.protocol.oidc.endpoints;
 
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.jboss.resteasy.spi.HttpResponse;
@@ -43,6 +44,7 @@ import org.keycloak.models.UserSessionModel;
 import org.keycloak.models.utils.KeycloakModelUtils;
 import org.keycloak.protocol.oidc.OIDCAdvancedConfigWrapper;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
+import org.keycloak.protocol.oidc.OIDCLoginProtocolService;
 import org.keycloak.protocol.oidc.TokenManager;
 import org.keycloak.protocol.oidc.TokenManager.NotBeforeCheck;
 import org.keycloak.representations.AccessToken;
@@ -77,6 +79,9 @@ import java.util.Set;
  * @author pedroigor
  */
 public class UserInfoEndpoint {
+
+    private static final Logger logger = Logger.getLogger(UserInfoEndpoint.class);
+
 
     @Context
     private HttpRequest request;
@@ -139,6 +144,8 @@ public class UserInfoEndpoint {
     }
 
     private Response issueUserInfo(String tokenString) {
+        logger.info("------------->>>>>>UserInfoEndpoint.issueUserInfo: "+tokenString);
+
         cors = Cors.add(request).auth().allowedMethods(request.getHttpMethod()).auth().exposedHeaders(Cors.ACCESS_CONTROL_ALLOW_METHODS);
 
         try {
@@ -186,7 +193,7 @@ public class UserInfoEndpoint {
             throw newUnauthorizedErrorResponseException(OAuthErrorException.INVALID_TOKEN, "Token verification failed");
         }
 
-	    if (!clientModel.getProtocol().equals(OIDCLoginProtocol.LOGIN_PROTOCOL)) {
+        if (!clientModel.getProtocol().equals(OIDCLoginProtocol.LOGIN_PROTOCOL)) {
             event.error(Errors.INVALID_CLIENT);
             throw new CorsErrorResponseException(cors, Errors.INVALID_CLIENT, "Wrong client protocol.", Response.Status.BAD_REQUEST);
         }
@@ -227,7 +234,7 @@ public class UserInfoEndpoint {
         ClientSessionContext clientSessionCtx = DefaultClientSessionContext.fromClientSessionScopeParameter(clientSession, session);
 
         AccessToken userInfo = new AccessToken();
-        
+
         tokenManager.transformUserInfoAccessToken(session, userInfo, userSession, clientSessionCtx);
 
         Map<String, Object> claims = new HashMap<>();
@@ -254,12 +261,35 @@ public class UserInfoEndpoint {
 
         Response.ResponseBuilder responseBuilder;
         OIDCAdvancedConfigWrapper cfg = OIDCAdvancedConfigWrapper.fromClientModel(clientModel);
-
+        //TODO
+        claims.put("userinfo","{\n" +
+                "      \"verified_claims\":{\n" +
+                "         \"verification\": {\n" +
+                "            \"trust_framework\": null\n" +
+                "         },\n" +
+                "         \"claims\":{\n" +
+                "            \"given_name\":{\n" +
+                "              \"essential\":true,\n" +
+                "              \"purpose\":\"o identify the user at the Data provider KYC Source\"\n" +
+                "            },\n" +
+                "            \"family_name\":{\n" +
+                "              \"essential\":true,\n" +
+                "              \"purpose\":\"o identify the user at the Data provider KYC Source\"\n" +
+                "            },\n" +
+                "            \"birthdate\":{\n" +
+                "              \"essential\":true,\n" +
+                "              \"purpose\":\"To identify the user at the Data provider KYC Source\"\n" +
+                "            }\n" +
+                "         }\n" +
+                "      }\n" +
+                "   }\n");
         if (cfg.isUserInfoSignatureRequired()) {
             String issuerUrl = Urls.realmIssuer(session.getContext().getUri().getBaseUri(), realm.getName());
             String audience = clientModel.getClientId();
             claims.put("iss", issuerUrl);
             claims.put("aud", audience);
+
+
 
             String signatureAlgorithm = session.tokens().signatureAlgorithm(TokenCategory.USERINFO);
 
@@ -268,11 +298,13 @@ public class UserInfoEndpoint {
 
             String signedUserInfo = new JWSBuilder().type("JWT").jsonContent(claims).sign(signer);
 
-            responseBuilder = Response.ok(signedUserInfo).header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JWT);
+            logger.info("********************UserInfoEndpoint  if (cfg.isUserInfoSignatureRequired()) !!!!");
+                    responseBuilder = Response.ok(signedUserInfo).header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JWT);
 
             event.detail(Details.SIGNATURE_REQUIRED, "true");
             event.detail(Details.SIGNATURE_ALGORITHM, cfg.getUserInfoSignedResponseAlg().toString());
         } else {
+            logger.info("********************UserInfoEndpoint  if !(cfg.isUserInfoSignatureRequired()) !!!!");
             responseBuilder = Response.ok(claims).header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
             event.detail(Details.SIGNATURE_REQUIRED, "false");
@@ -284,6 +316,7 @@ public class UserInfoEndpoint {
     }
 
     private UserSessionModel createTransientSessionForClient(AccessToken token, ClientModel client) {
+        logger.info("------------->>>>>>UserInfoEndpoint.createTransientSessionForClient: ");
         // create a transient session
         UserModel user = TokenManager.lookupUserFromStatelessToken(session, realm, token);
         if (user == null) {
@@ -303,6 +336,8 @@ public class UserInfoEndpoint {
     }
 
     private UserSessionModel findValidSession(AccessToken token, EventBuilder event, ClientModel client) {
+        logger.info("------------->>>>>>UserInfoEndpoint.findValidSession: ");
+
         if (token.getSessionState() == null) {
             return createTransientSessionForClient(token, client);
         }

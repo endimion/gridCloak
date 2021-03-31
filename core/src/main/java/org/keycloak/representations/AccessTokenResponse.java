@@ -55,6 +55,8 @@ public class AccessTokenResponse {
     @JsonProperty("session_state")
     protected String sessionState;
 
+
+
     protected Map<String, Object> otherClaims = new HashMap<>();
 
     // OIDC Financial API Read Only Profile : scope MUST be returned in the response from Token Endpoint

@@ -444,6 +444,7 @@ public class TokenEndpoint {
         clientSessionCtx.setAttribute(OIDCLoginProtocol.NONCE_PARAM, codeData.getNonce());
 
         AccessToken token = tokenManager.createClientAccessToken(session, realm, client, user, userSession, clientSessionCtx);
+        logger.info("created the accessToken::" + token.toString());
 
         TokenManager.AccessTokenResponseBuilder responseBuilder = tokenManager.responseBuilder(realm, client, event, session, userSession, clientSessionCtx)
                 .accessToken(token)
@@ -464,11 +465,15 @@ public class TokenEndpoint {
 
         if (TokenUtil.isOIDCRequest(scopeParam)) {
             responseBuilder.generateIDToken().generateAccessTokenHash();
+
         }
         
         AccessTokenResponse res = null;
         try {
             res = responseBuilder.build();
+
+            logger.info("@@@created the AccessTokenResponse::" + res.getToken());
+
         } catch (RuntimeException re) {
             if ("can not get encryption KEK".equals(re.getMessage())) {
                 throw new CorsErrorResponseException(cors, OAuthErrorException.INVALID_REQUEST, "can not get encryption KEK", Response.Status.BAD_REQUEST);

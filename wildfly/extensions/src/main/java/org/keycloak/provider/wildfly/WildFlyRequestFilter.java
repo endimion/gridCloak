@@ -19,16 +19,18 @@ package org.keycloak.provider.wildfly;
 
 import java.io.UnsupportedEncodingException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 
 import org.keycloak.common.ClientConnection;
 import org.keycloak.services.filters.AbstractRequestFilter;
 
 public class WildFlyRequestFilter extends AbstractRequestFilter implements Filter {
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+
+    }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -43,6 +45,11 @@ public class WildFlyRequestFilter extends AbstractRequestFilter implements Filte
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    @Override
+    public void destroy() {
+
     }
 
     private ClientConnection createConnection(HttpServletRequest request) {

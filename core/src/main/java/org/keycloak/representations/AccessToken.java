@@ -19,6 +19,7 @@ package org.keycloak.representations;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.ToString;
 import org.keycloak.TokenCategory;
 import org.keycloak.representations.idm.authorization.Permission;
 
@@ -34,6 +35,7 @@ import java.util.Set;
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
+@ToString
 public class AccessToken extends IDToken {
     public static class Access implements Serializable {
         @JsonProperty("roles")

@@ -28,11 +28,14 @@ import org.keycloak.protocol.oidc.OIDCWellKnownProviderFactory;
 import org.keycloak.protocol.oidc.representations.OIDCConfigurationRepresentation;
 import org.keycloak.services.resources.RealmsResource;
 import org.keycloak.wellknown.WellKnownProvider;
-
+import org.jboss.logging.Logger;
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Igor</a>
  */
+
 public class UmaConfiguration extends OIDCConfigurationRepresentation {
+
+    private static final Logger log = Logger.getLogger(UmaConfiguration.class);
 
     public static final UmaConfiguration create(KeycloakSession session) {
         WellKnownProvider oidcProvider = session.getProvider(WellKnownProvider.class, OIDCWellKnownProviderFactory.PROVIDER_ID);
@@ -60,6 +63,9 @@ public class UmaConfiguration extends OIDCConfigurationRepresentation {
         configuration.setPermissionEndpoint(uriBuilder.clone().path(RealmsResource.class).path(RealmsResource.class, "getAuthorizationService").path(AuthorizationService.class, "getProtectionService").path(ProtectionService.class, "permission").build(realm.getName()).toString());
         configuration.setResourceRegistrationEndpoint(uriBuilder.clone().path(RealmsResource.class).path(RealmsResource.class, "getAuthorizationService").path(AuthorizationService.class, "getProtectionService").path(ProtectionService.class, "resource").build(realm.getName()).toString());
         configuration.setPolicyEndpoint(uriBuilder.clone().path(RealmsResource.class).path(RealmsResource.class, "getAuthorizationService").path(AuthorizationService.class, "getProtectionService").path(ProtectionService.class, "policy").build(realm.getName()).toString());
+
+
+        log.info("HEY!!! Wellknown called here!!!");
 
         return configuration;
     }

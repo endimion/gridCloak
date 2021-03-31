@@ -83,6 +83,19 @@ public class OIDCClientRegistrationProvider extends AbstractClientRegistrationPr
             client = create(oidcContext);
 
             ClientModel clientModel = session.getContext().getRealm().getClientByClientId(client.getClientId());
+            session.getContext().getRealm().getClientsStream().forEach(clmodel ->{
+                logger.info(clmodel.getClientId());
+//                clmodel.getAttributes().entrySet().stream().forEach( e ->{
+//                        logger.info("for the client {} I got the attribute {} with value {}" +
+//                                clmodel.getClientId() + (String)e.getKey() + (String)e.getValue());
+//                });
+                logger.info("HEY!!! the clients jwk_url is: "+clmodel.getAttributes().get("jwks.url"));
+                //response.signature.algw
+
+
+            });
+
+
             updatePairwiseSubMappers(clientModel, SubjectType.parse(clientOIDC.getSubjectType()), clientOIDC.getSectorIdentifierUri());
             updateClientRepWithProtocolMappers(clientModel, client);
 

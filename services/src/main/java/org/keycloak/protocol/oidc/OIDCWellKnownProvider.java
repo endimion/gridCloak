@@ -18,6 +18,10 @@
 package org.keycloak.protocol.oidc;
 
 import com.google.common.collect.Streams;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.jboss.logging.Logger;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.authentication.ClientAuthenticator;
 import org.keycloak.authentication.ClientAuthenticatorFactory;
@@ -25,6 +29,11 @@ import org.keycloak.crypto.CekManagementProvider;
 import org.keycloak.crypto.ClientSignatureVerifierProvider;
 import org.keycloak.crypto.ContentEncryptionProvider;
 import org.keycloak.crypto.SignatureProvider;
+import org.keycloak.grids.services.KeyStoreService;
+import org.keycloak.grids.services.ParameterService;
+import org.keycloak.grids.services.impl.KeyStoreServiceImpl;
+import org.keycloak.grids.services.impl.NetworkServiceImpl;
+import org.keycloak.grids.services.impl.ParameterServiceImpl;
 import org.keycloak.jose.jws.Algorithm;
 import org.keycloak.models.ClientScopeModel;
 import org.keycloak.models.KeycloakSession;
@@ -45,18 +54,25 @@ import org.keycloak.wellknown.WellKnownProvider;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.jboss.logging.Logger;
 
 /**
  * @author <a href="mailto:sthorger@redhat.com">Stian Thorgersen</a>
  */
 public class OIDCWellKnownProvider implements WellKnownProvider {
+
+    private static final Logger log = Logger.getLogger(OIDCWellKnownProvider.class);
 
     public static final List<String> DEFAULT_GRANT_TYPES_SUPPORTED = list(OAuth2Constants.AUTHORIZATION_CODE, OAuth2Constants.IMPLICIT, OAuth2Constants.REFRESH_TOKEN, OAuth2Constants.PASSWORD, OAuth2Constants.CLIENT_CREDENTIALS);
 
@@ -159,6 +175,35 @@ public class OIDCWellKnownProvider implements WellKnownProvider {
 
         config.setBackchannelLogoutSupported(true);
         config.setBackchannelLogoutSessionSupported(true);
+
+
+//        Map<String, Object> otherClaims = config.getOtherClaims();
+        ParameterService paramServ = new ParameterServiceImpl();
+        String CONF_MANAGER_URL = StringUtils.isEmpty(paramServ.getParam("CONF_MANAGER_URL"))?"http://localhost:8188":
+                paramServ.getParam("CONF_MANAGER_URL");
+
+        try {
+            KeyStoreService keyServ = new KeyStoreServiceImpl(paramServ);
+            NetworkServiceImpl netServ = new NetworkServiceImpl(keyServ);
+            String uri = "/metadata/externalEntities/gridsMetadata";
+
+            List<NameValuePair> getParams = new ArrayList<>();
+            String gridsMetadataResponse = netServ.sendGet(CONF_MANAGER_URL, uri, getParams, 1);
+//            resp = this.mapper.readValue(
+//                    tokenGenResponse, SessionMngrResponse.class);
+
+
+            config.getOtherClaims().put("entityMetadata",gridsMetadataResponse);
+
+
+            log.info("HEY!!! Wellknown called here!!!");
+
+
+        } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException | InvalidKeySpecException | IOException | CertificateException e) {
+//            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+
 
         return config;
     }
