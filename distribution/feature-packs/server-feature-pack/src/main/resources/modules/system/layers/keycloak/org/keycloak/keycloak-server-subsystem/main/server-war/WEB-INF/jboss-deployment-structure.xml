@@ -18,6 +18,8 @@
     <deployment>
         <dependencies>
             <module name="org.keycloak.keycloak-server-subsystem.dependencies"/>
+            <module name="org.apache.commons.lang3"/>
+
         </dependencies>
         <exclude-subsystems>
             <subsystem name="webservices"/>

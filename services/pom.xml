@@ -209,25 +209,30 @@
         <dependency>
             <groupId>org.tomitribe</groupId>
             <artifactId>tomitribe-http-signatures</artifactId>
-            <version>1.1</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>5.0.9.RELEASE</version>
-            <scope>compile</scope>
         </dependency>
 
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
         </dependency>
 
 
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

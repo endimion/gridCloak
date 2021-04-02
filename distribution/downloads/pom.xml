@@ -66,6 +66,14 @@
                                 </configuration>
                             </execution>
                         </executions>
+
+                        <configuration>
+                            <mainClass>org.keycloak.testsuite.KeycloakServer</mainClass>
+                            <additionalClasspathElements>
+                                <additionalClasspathElement>${keycloak.additionalClasspathElement}</additionalClasspathElement>
+                            </additionalClasspathElements>
+                        </configuration>
+
                     </plugin>
                 </plugins>
             </build>

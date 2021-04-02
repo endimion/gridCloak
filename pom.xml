@@ -1556,6 +1556,33 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>5.1.9.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>5.1.9.RELEASE</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.tomitribe</groupId>
+                <artifactId>tomitribe-http-signatures</artifactId>
+                <version>1.1</version>
+                <type>jar</type>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.2</version>
+            </dependency>
+
+
         </dependencies>
     </dependencyManagement>
 
@@ -1796,14 +1823,23 @@
             </activation>
 
             <build>
+<!--                <plugins>-->
+<!--                    <plugin>-->
+<!--                        <groupId>org.apache.maven.plugins</groupId>-->
+<!--                        <artifactId>maven-javadoc-plugin</artifactId>-->
+<!--                        <configuration>-->
+<!--&lt;!&ndash;                            <additionalparam>-Xdoclint:none</additionalparam>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <failOnError>false</failOnError>&ndash;&gt;-->
+<!--                            <excludePackageNames>cx.*:org.freedesktop*:org.jvnet*</excludePackageNames>-->
+<!--                        </configuration>-->
+<!--                    </plugin>-->
+<!--                </plugins>-->
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
-                            <additionalparam>-Xdoclint:none</additionalparam>
-                            <failOnError>false</failOnError>
-                            <excludePackageNames>cx.*:org.freedesktop*:org.jvnet*</excludePackageNames>
+                            <skip>true</skip>
                         </configuration>
                     </plugin>
                 </plugins>
